@@ -10,34 +10,60 @@ body, html {
   /* Navbar */
   .navbar {
     background-color: #b91c1c; /* Tailwind red-700 */
-    padding: 1rem 2rem;
-    position: fixed;
-    width: 100%;
+    padding: 0.75rem 2rem;
+    position: sticky;
     top: 0;
-    z-index: 100;
+    width: 100%;
+    z-index: 1000;
+    box-sizing: border-box;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
   
   .navbar-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    max-width: 1300px;
+    margin: 0 auto;
+    width: 100%;
   }
   
   .logo {
-    height: 48px;
+    height: 44px;
     object-fit: contain;
+    display: block;
   }
   
+  .nav-links {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+  }
+
   .nav-links a {
     color: white;
-    margin-left: 1.5rem;
     text-decoration: none;
     font-weight: 500;
-    transition: opacity 0.3s;
+    font-size: 0.95rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
   }
   
-  .nav-links a:hover {
-    opacity: 0.8;
+  .nav-links a:hover,
+  .nav-links a.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+  }
+
+  .nav-links a.nav-highlight {
+    background-color: white;
+    color: #b91c1c;
+    font-weight: 600;
+  }
+  .nav-links a.nav-highlight:hover {
+    background-color: #fee2e2;
   }
   
   /* Hero Section */
@@ -784,10 +810,20 @@ body, html {
     height: 100vh;
   }
   
-  .display: block;
+  .sidebar a {
+    display: flex;
+    align-items: center;
     color: white;
     text-decoration: none;
-    margin-top: 15px;
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+  }
+
+  .sidebar a:hover,
+  .sidebar li.active a {
+    background-color: #a10000;
   }
   
   .main-content {

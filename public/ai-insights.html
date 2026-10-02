@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Insights - KindBite</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="CSS/style.css">
+  <script src="js/script.js" defer></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Poppins', sans-serif; background: #fff; color: #333; }
+    .ai-insight-section {
+      padding: 60px 20px;
+      background: #fafafa;
+      text-align: center;
+    }
+    .ai-insight-section h2 {
+      color: #c92a2a;
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
+    .ai-insight-section p.description {
+      max-width: 700px;
+      margin: 0 auto 40px;
+      font-size: 18px;
+      color: #555;
+    }
+    .insight-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 40px;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 30px 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    }
+    .card h3 {
+      font-size: 24px;
+      color: #c92a2a;
+      margin-bottom: 10px;
+    }
+    .card p {
+      font-size: 16px;
+      color: #555;
+    }
+    /* Responsive adjustment */
+    @media (max-width: 600px) {
+      .ai-insight-section h2 { font-size: 28px; }
+      .card h3 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="navbar-container">
+      <a href="index.html"><img src="assets/logo2.png" alt="KindBite FoodTrust" class="logo" /></a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="donor-dashboard.html">Donor Dashboard</a>
+        <a href="nearby-donations.html">Nearby Donations</a>
+        <a href="ai-insights.html">AI Insights</a>
+        <a href="impact-testimonials.html">Impact</a>
+        <a href="our-mission.html">Mission</a>
+        <a href="about-us.html">About</a>
+        <a href="contact-us.html">Contact</a>
+        <a href="admin-dashboard.html">Admin</a>
+        <a href="login.html" class="nav-highlight">Login</a>
+      </nav>
+    </div>
+  </header>
+
+<section class="ai-insight-section">
+  <h2>AI Insights</h2>
+  <p class="description">Our intelligent algorithms monitor and predict food freshness, ensuring timely redistribution to NGOs. Here’s how our AI supports smarter food rescue:</p>
+
+  <div class="insight-cards">
+    <div class="card">
+      <h3>Freshness Score</h3>
+      <p>Real-time scoring predicts remaining shelf life, ensuring NGOs receive the freshest food possible.</p>
+    </div>
+
+    <div class="card">
+      <h3>Urgency Detection</h3>
+      <p>AI identifies critical donations nearing expiry and prioritizes them for immediate pickup and delivery.</p>
+    </div>
+
+    <div class="card">
+      <h3>Smart Matching</h3>
+      <p>Our AI matches donations to nearby NGOs based on quantity, type, and urgency, optimizing logistics.</p>
+    </div>
+
+    <div class="card">
+      <h3>Quality Monitoring</h3>
+      <p>Advanced sensors and AI verify food quality during transport, minimizing spoilage risks.</p>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
