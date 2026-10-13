@@ -108,6 +108,7 @@
     </div>
   </section>
 
+  <script src="js/api-client.js"></script>
   <script>
     function switchTab(role) {
       document.querySelectorAll('.auth-tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -124,6 +125,67 @@
         document.getElementById('adminPanel').classList.add('active');
       }
     }
+
+    async function handleAuth(event, role, redirectUrl) {
+      event.preventDefault();
+      const form = event.target;
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+
+      const emailInput = form.querySelector('input[type="email"]');
+      const passwordInput = form.querySelector('input[type="password"]');
+      const nameInput = form.querySelector('input[type="text"]');
+
+      const email = emailInput ? emailInput.value.trim() : '';
+      const password = passwordInput ? passwordInput.value : '';
+      const fullName = nameInput ? nameInput.value.trim() : '';
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Authenticating...';
+
+      try {
+        // Attempt login first
+        try {
+          const res = await window.FoodTrustAPI.auth.login(email, password);
+          window.location.href = redirectUrl;
+          return;
+        } catch (loginErr) {
+          // If 401 and registration fields provided (donor/ngo), attempt registration
+          if (loginErr.status === 401 && role !== 'ADMIN' && fullName) {
+            submitBtn.textContent = 'Registering new account...';
+            await window.FoodTrustAPI.auth.register(email, password, fullName, role);
+            // Log in with newly registered account
+            await window.FoodTrustAPI.auth.login(email, password);
+            window.location.href = redirectUrl;
+            return;
+          }
+          throw loginErr;
+        }
+      } catch (err) {
+        alert('Authentication failed: ' + (err.message || 'Please check your credentials.'));
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    }
+
+    // Attach form listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      const donorForm = document.querySelector('#donorPanel form');
+      if (donorForm) {
+        donorForm.onsubmit = (e) => handleAuth(e, 'DONOR', 'donor-dashboard.html');
+      }
+
+      const ngoForm = document.querySelector('#ngoPanel form');
+      if (ngoForm) {
+        ngoForm.onsubmit = (e) => handleAuth(e, 'NGO', 'nearby-donations.html');
+      }
+
+      const adminForm = document.querySelector('#adminPanel form');
+      if (adminForm) {
+        adminForm.onsubmit = (e) => handleAuth(e, 'ADMIN', 'admin-dashboard.html');
+      }
+    });
   </script>
 </body>
 </html>

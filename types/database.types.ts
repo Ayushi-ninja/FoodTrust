@@ -1,21 +1,14 @@
 /**
  * database.types.ts
  * FoodTrust — AI + IoT Smart Food Waste Monitoring & Redistribution System
- * Phase 1 — Database Foundation
+ * Phase 1 & 2 Database Foundation & Client Definitions
  *
  * Hand-authored TypeScript types matching the PostgreSQL schema defined in
  * supabase/migrations/20261001000001_extensions_and_enums.sql through
  * supabase/migrations/20261001000005_rls_policies.sql.
  *
- * NOTE: These types are manually maintained because the Supabase CLI cannot
- * be run locally (Docker unavailable on this machine). Once Supabase CLI
- * access is available, regenerate with:
- *   npx supabase gen types typescript --project-id <PROJECT_ID> > types/database.types.ts
- *
- * References:
- *   ARCHITECTURE.md Section 5 (Table Definitions)
- *   IMPLEMENTATION_DECISIONS.md Section 2.2 (Roles & Enums)
- *   IMPLEMENTATION_DECISIONS.md Section 3 (Freshness & Impact Terminology)
+ * Configured with full Supabase JS client v2 GenericSchema compatibility
+ * (Row, Insert, Update, Relationships).
  */
 
 // ===========================================================================
@@ -207,21 +200,14 @@ export interface FoodDonation {
   food_category: FoodCategory;
   quantity_kg: number;
   preparation_timestamp: string;
-  /**
-   * Decision-support freshness score (0–100).
-   * NOT a certified food safety determination.
-   */
   freshness_score: number;
-  /** Decision-support freshness status. NOT a certified food safety determination. */
   freshness_status: FreshnessStatus;
-  /** Decision-support risk level. NOT a certified food safety determination. */
   risk_level: RiskLevel;
   shelf_life_hours_remaining: number;
   status: DonationStatus;
   pickup_address: string;
   latitude: number;
   longitude: number;
-  // location: excluded (PostGIS GEOGRAPHY)
   image_url: string | null;
   created_at: string;
   updated_at: string;
@@ -268,8 +254,6 @@ export interface Pickup {
  * public.freshness_logs
  * Time-series freshness evaluation snapshot.
  * Primary key is BIGSERIAL (number, not UUID).
- *
- * IMPORTANT: All fields are decision-support values, NOT certified safety records.
  */
 export interface FreshnessLog {
   id: number;                  // BIGSERIAL
@@ -303,18 +287,15 @@ export interface Notification {
  * public.impact_metrics
  * Estimated impact record per completed donation.
  * Values are CONFIGURABLE ESTIMATES, not official measurements.
- * Ref: IMPLEMENTATION_DECISIONS.md Section 3.2
  */
 export interface ImpactMetric {
   id: string;                       // UUID
   donation_id: string;              // FK → food_donations.id (UNIQUE)
   weight_kg: number;
-  /** ROUND(weight_kg / kg_per_meal_factor). Default: 0.4 kg/meal */
   estimated_meals_served: number;
-  /** weight_kg * co2_factor_per_kg. Default: 2.5 kg CO2e/kg */
   estimated_co2_offset_kg: number;
-  kg_per_meal_factor: number;       // Default 0.40 — FAO standard portion estimate
-  co2_factor_per_kg: number;        // Default 2.50 — UNEP Food Waste Index
+  kg_per_meal_factor: number;
+  co2_factor_per_kg: number;
   logged_at: string;
 }
 
@@ -328,7 +309,7 @@ export interface AuditLog {
   actor_id: string | null;          // FK → users.id (null for system-generated events)
   actor_role: string | null;        // Snapshot of role at time of action
   action: string;                   // e.g., 'CLAIM_DONATION', 'BIN_CONFIG_UPDATE'
-  target_table: string;             // e.g., 'food_donations'
+  target_table: string;             // e.g., 'food_donations', 'smart_bins'
   target_id: string | null;         // UUID of the affected record
   old_values: Record<string, unknown> | null;
   new_values: Record<string, unknown> | null;
@@ -338,8 +319,7 @@ export interface AuditLog {
 
 // ===========================================================================
 // SUPABASE DATABASE TYPE WRAPPER
-// Structured for compatibility with the Supabase JS client's Database generic.
-// Usage: createClient<Database>(url, key)
+// Structured for full compatibility with Supabase JS v2 client generic.
 // ===========================================================================
 
 export type Database = {
@@ -347,112 +327,377 @@ export type Database = {
     Tables: {
       users: {
         Row: User;
-        Insert: Omit<User, 'created_at' | 'updated_at'> & {
+        Insert: {
+          id: string;
+          email: string;
+          full_name: string;
+          phone?: string | null;
+          role?: UserRole;
+          status?: UserStatus;
           created_at?: string;
           updated_at?: string;
         };
-        Update: Partial<Omit<User, 'id'>>;
+        Update: {
+          id?: string;
+          email?: string;
+          full_name?: string;
+          phone?: string | null;
+          role?: UserRole;
+          status?: UserStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       donor_profiles: {
         Row: DonorProfile;
-        Insert: Omit<DonorProfile, 'id' | 'created_at' | 'updated_at'> & {
+        Insert: {
           id?: string;
+          user_id: string;
+          business_name: string;
+          establishment_type?: string | null;
+          fssai_license?: string | null;
+          address: string;
+          latitude: number;
+          longitude: number;
+          contact_person?: string | null;
           created_at?: string;
           updated_at?: string;
         };
-        Update: Partial<Omit<DonorProfile, 'id' | 'user_id'>>;
+        Update: {
+          id?: string;
+          user_id?: string;
+          business_name?: string;
+          establishment_type?: string | null;
+          fssai_license?: string | null;
+          address?: string;
+          latitude?: number;
+          longitude?: number;
+          contact_person?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       ngo_profiles: {
         Row: NgoProfile;
-        Insert: Omit<NgoProfile, 'id' | 'created_at' | 'updated_at'> & {
+        Insert: {
           id?: string;
+          user_id: string;
+          organization_name: string;
+          registration_number: string;
+          operational_radius_km?: number;
+          has_cold_storage?: boolean;
+          daily_capacity_kg?: number;
+          latitude: number;
+          longitude: number;
+          verification_status?: VerificationStatus;
+          address?: string | null;
+          contact_person?: string | null;
+          contact_phone?: string | null;
           created_at?: string;
           updated_at?: string;
         };
-        Update: Partial<Omit<NgoProfile, 'id' | 'user_id'>>;
+        Update: {
+          id?: string;
+          user_id?: string;
+          organization_name?: string;
+          registration_number?: string;
+          operational_radius_km?: number;
+          has_cold_storage?: boolean;
+          daily_capacity_kg?: number;
+          latitude?: number;
+          longitude?: number;
+          verification_status?: VerificationStatus;
+          address?: string | null;
+          contact_person?: string | null;
+          contact_phone?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       smart_bins: {
         Row: SmartBin;
-        Insert: Omit<SmartBin, 'id' | 'created_at' | 'updated_at'> & {
+        Insert: {
           id?: string;
+          bin_code: string;
+          donor_id: string;
+          api_key_hash: string;
+          status?: BinStatus;
+          firmware_version?: string | null;
+          last_heartbeat_at?: string | null;
+          location_note?: string | null;
           created_at?: string;
           updated_at?: string;
         };
-        Update: Partial<Omit<SmartBin, 'id' | 'donor_id'>>;
+        Update: {
+          id?: string;
+          bin_code?: string;
+          donor_id?: string;
+          api_key_hash?: string;
+          status?: BinStatus;
+          firmware_version?: string | null;
+          last_heartbeat_at?: string | null;
+          location_note?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       food_trays: {
         Row: FoodTray;
-        Insert: Omit<FoodTray, 'id' | 'updated_at'> & {
+        Insert: {
           id?: string;
+          bin_id: string;
+          tray_number: number;
+          assigned_category?: FoodCategory;
+          current_weight_kg?: number;
+          tare_weight_kg?: number;
+          last_calibrated_at?: string | null;
           updated_at?: string;
         };
-        Update: Partial<Omit<FoodTray, 'id' | 'bin_id'>>;
+        Update: {
+          id?: string;
+          bin_id?: string;
+          tray_number?: number;
+          assigned_category?: FoodCategory;
+          current_weight_kg?: number;
+          tare_weight_kg?: number;
+          last_calibrated_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       sensor_telemetry: {
         Row: SensorTelemetry;
-        Insert: Omit<SensorTelemetry, 'id' | 'recorded_at'> & {
+        Insert: {
+          id?: number;
+          bin_id: string;
+          tray_id?: string | null;
+          weight_kg?: number | null;
+          temperature_c: number;
+          humidity_pct: number;
+          voc_gas_ppm: number;
+          lid_open?: boolean;
+          battery_pct?: number | null;
+          firmware_version?: string | null;
           recorded_at?: string;
         };
-        Update: never; // Telemetry is append-only
+        Update: {
+          id?: number;
+          bin_id?: string;
+          tray_id?: string | null;
+          weight_kg?: number | null;
+          temperature_c?: number;
+          humidity_pct?: number;
+          voc_gas_ppm?: number;
+          lid_open?: boolean;
+          battery_pct?: number | null;
+          firmware_version?: string | null;
+          recorded_at?: string;
+        };
+        Relationships: [];
       };
       food_donations: {
         Row: FoodDonation;
-        Insert: Omit<FoodDonation, 'id' | 'created_at' | 'updated_at'> & {
+        Insert: {
           id?: string;
+          donor_id: string;
+          bin_id?: string | null;
+          tray_id?: string | null;
+          title: string;
+          description?: string | null;
+          food_category: FoodCategory;
+          quantity_kg: number;
+          preparation_timestamp: string;
+          freshness_score?: number;
+          freshness_status?: FreshnessStatus;
+          risk_level?: RiskLevel;
+          shelf_life_hours_remaining?: number;
+          status?: DonationStatus;
+          pickup_address: string;
+          latitude: number;
+          longitude: number;
+          image_url?: string | null;
           created_at?: string;
           updated_at?: string;
         };
-        Update: Partial<Omit<FoodDonation, 'id' | 'donor_id'>>;
+        Update: {
+          id?: string;
+          donor_id?: string;
+          bin_id?: string | null;
+          tray_id?: string | null;
+          title?: string;
+          description?: string | null;
+          food_category?: FoodCategory;
+          quantity_kg?: number;
+          preparation_timestamp?: string;
+          freshness_score?: number;
+          freshness_status?: FreshnessStatus;
+          risk_level?: RiskLevel;
+          shelf_life_hours_remaining?: number;
+          status?: DonationStatus;
+          pickup_address?: string;
+          latitude?: number;
+          longitude?: number;
+          image_url?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       donation_claims: {
         Row: DonationClaim;
-        Insert: Omit<DonationClaim, 'id' | 'claimed_at'> & {
+        Insert: {
           id?: string;
+          donation_id: string;
+          ngo_id: string;
+          status?: ClaimStatus;
           claimed_at?: string;
+          responded_at?: string | null;
+          notes?: string | null;
         };
-        Update: Partial<Pick<DonationClaim, 'status' | 'responded_at' | 'notes'>>;
+        Update: {
+          status?: ClaimStatus;
+          responded_at?: string | null;
+          notes?: string | null;
+        };
+        Relationships: [];
       };
       pickups: {
         Row: Pickup;
-        Insert: Omit<Pickup, 'id' | 'created_at' | 'updated_at'> & {
+        Insert: {
           id?: string;
+          donation_id: string;
+          ngo_id: string;
+          assigned_volunteer?: string | null;
+          volunteer_phone?: string | null;
+          otp_code_hash: string;
+          otp_attempt_count?: number;
+          otp_expires_at?: string | null;
+          status?: PickupStatus;
+          proof_image_url?: string | null;
+          scheduled_at?: string | null;
+          picked_up_at?: string | null;
+          delivered_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
-        Update: Partial<Omit<Pickup, 'id' | 'donation_id' | 'ngo_id'>>;
+        Update: {
+          assigned_volunteer?: string | null;
+          volunteer_phone?: string | null;
+          otp_attempt_count?: number;
+          status?: PickupStatus;
+          proof_image_url?: string | null;
+          scheduled_at?: string | null;
+          picked_up_at?: string | null;
+          delivered_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       freshness_logs: {
         Row: FreshnessLog;
-        Insert: Omit<FreshnessLog, 'id' | 'evaluated_at'> & {
+        Insert: {
+          id?: number;
+          donation_id: string;
+          evaluated_score: number;
+          freshness_status: FreshnessStatus;
+          risk_level: RiskLevel;
+          shelf_life_hours: number;
+          gas_reading_ppm?: number | null;
+          temperature_c?: number | null;
+          humidity_pct?: number | null;
           evaluated_at?: string;
         };
-        Update: never; // Freshness logs are append-only
+        Update: {
+          id?: number;
+          donation_id?: string;
+          evaluated_score?: number;
+          freshness_status?: FreshnessStatus;
+          risk_level?: RiskLevel;
+          shelf_life_hours?: number;
+          gas_reading_ppm?: number | null;
+          temperature_c?: number | null;
+          humidity_pct?: number | null;
+          evaluated_at?: string;
+        };
+        Relationships: [];
       };
       notifications: {
         Row: Notification;
-        Insert: Omit<Notification, 'id' | 'created_at'> & {
+        Insert: {
           id?: string;
+          recipient_user_id: string;
+          type: string;
+          title: string;
+          message: string;
+          metadata?: Record<string, unknown> | null;
+          is_read?: boolean;
           created_at?: string;
         };
-        Update: Partial<Pick<Notification, 'is_read'>>;
+        Update: {
+          is_read?: boolean;
+        };
+        Relationships: [];
       };
       impact_metrics: {
         Row: ImpactMetric;
-        Insert: Omit<ImpactMetric, 'id' | 'logged_at'> & {
+        Insert: {
           id?: string;
+          donation_id: string;
+          weight_kg: number;
+          estimated_meals_served: number;
+          estimated_co2_offset_kg: number;
+          kg_per_meal_factor?: number;
+          co2_factor_per_kg?: number;
           logged_at?: string;
         };
-        Update: never; // Impact metrics are append-only
+        Update: {
+          id?: string;
+          donation_id?: string;
+          weight_kg?: number;
+          estimated_meals_served?: number;
+          estimated_co2_offset_kg?: number;
+          kg_per_meal_factor?: number;
+          co2_factor_per_kg?: number;
+          logged_at?: string;
+        };
+        Relationships: [];
       };
       audit_logs: {
         Row: AuditLog;
-        Insert: Omit<AuditLog, 'id' | 'created_at'> & {
+        Insert: {
+          id?: number;
+          actor_id?: string | null;
+          actor_role?: string | null;
+          action: string;
+          target_table: string;
+          target_id?: string | null;
+          old_values?: Record<string, unknown> | null;
+          new_values?: Record<string, unknown> | null;
+          ip_address?: string | null;
           created_at?: string;
         };
-        Update: never; // Audit logs are immutable — append-only
+        Update: {
+          id?: number;
+          actor_id?: string | null;
+          actor_role?: string | null;
+          action?: string;
+          target_table?: string;
+          target_id?: string | null;
+          old_values?: Record<string, unknown> | null;
+          new_values?: Record<string, unknown> | null;
+          ip_address?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
       };
     };
-    Views: Record<string, never>;
+    Views: {
+      [_ in never]: never;
+    };
     Functions: {
       get_current_user_role: {
         Args: Record<string, never>;

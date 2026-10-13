@@ -128,7 +128,7 @@ function highlightActiveNav() {
 let leafletMapInstance = null;
 let currentMarkers = [];
 
-function initNearbyDonationsMap() {
+async function initNearbyDonationsMap() {
   const mapContainer = document.getElementById('map');
   if (!mapContainer || typeof L === 'undefined') return;
 
@@ -150,8 +150,34 @@ function initNearbyDonationsMap() {
   const searchBar = document.getElementById('searchBar');
   const freshnessFilter = document.getElementById('freshnessFilter');
 
-  function renderMapData() {
-    const donations = getDonations();
+  async function fetchRealOrLocalDonations() {
+    if (window.FoodTrustAPI && window.FoodTrustAPI.donations) {
+      try {
+        const apiDonations = await window.FoodTrustAPI.donations.list({ limit: 50 });
+        if (Array.isArray(apiDonations) && apiDonations.length > 0) {
+          // Normalize backend rows into map view structure
+          return apiDonations.map(d => ({
+            id: d.id,
+            foodType: d.title || d.food_category,
+            quantity: d.quantity_kg,
+            freshness: d.freshness_status === 'FRESH' ? 'Fresh' : (d.freshness_status === 'MODERATE' ? 'Moderate' : 'Critical'),
+            freshnessScore: d.freshness_score || 85,
+            shelfLife: `${d.shelf_life_hours_remaining || 12} hrs`,
+            status: d.status === 'AVAILABLE' ? 'Available' : 'Claimed',
+            coords: [d.latitude || 28.6139, d.longitude || 77.2090],
+            locationName: d.pickup_address || 'Delhi NCR',
+            donorName: 'Verified Donor'
+          }));
+        }
+      } catch (err) {
+        console.warn('Backend API list fallback to local storage:', err);
+      }
+    }
+    return getDonations();
+  }
+
+  async function renderMapData() {
+    const donations = await fetchRealOrLocalDonations();
     const selectedType = typeFilter ? typeFilter.value.toLowerCase() : 'all';
     const selectedFresh = freshnessFilter ? freshnessFilter.value.toLowerCase() : 'all';
     const keyword = searchBar ? searchBar.value.toLowerCase().trim() : '';
@@ -195,7 +221,7 @@ function initNearbyDonationsMap() {
 
       // Add List Card
       if (donationList) {
-        const isClaimed = d.status === 'Claimed';
+        const isClaimed = d.status === 'Claimed' || d.status === 'CLAIMED';
         const card = document.createElement('div');
         card.className = 'donation-card';
         card.style.opacity = isClaimed ? '0.6' : '1';
@@ -213,7 +239,7 @@ function initNearbyDonationsMap() {
           <div style="margin-top:10px;">
             ${isClaimed 
               ? `<span style="display:inline-block; padding:6px 12px; background:#6b7280; color:white; border-radius:4px; font-weight:600;">Claimed by NGO</span>`
-              : `<button onclick="claimDonation(${d.id})" style="background:#b30000; color:white; border:none; padding:8px 14px; border-radius:4px; cursor:pointer;">Claim Donation</button>`
+              : `<button onclick="claimDonation('${d.id}')" style="background:#b30000; color:white; border:none; padding:8px 14px; border-radius:4px; cursor:pointer;">Claim Donation</button>`
             }
           </div>
         `;
@@ -226,12 +252,34 @@ function initNearbyDonationsMap() {
   if (freshnessFilter) freshnessFilter.addEventListener('change', renderMapData);
   if (searchBar) searchBar.addEventListener('input', renderMapData);
 
-  renderMapData();
+  await renderMapData();
 }
 
-window.claimDonation = function(id) {
+window.claimDonation = async function(id) {
+  if (window.FoodTrustAPI && window.FoodTrustAPI.claims && typeof id === 'string' && id.includes('-')) {
+    // Real UUID - attempt backend claim
+    if (confirm(`Confirm claiming this donation for your verified NGO?`)) {
+      try {
+        await window.FoodTrustAPI.claims.claim(id, 'NGO claim submitted from interactive food map');
+        alert(`Success! Donation has been claimed. Proceed to pickup scheduling.`);
+        initNearbyDonationsMap();
+        return;
+      } catch (err) {
+        if (err.status === 401 || err.status === 403) {
+          alert('Authentication Required: Please login as a verified NGO to claim this donation.');
+          window.location.href = 'login.html';
+          return;
+        }
+        alert('Could not claim donation: ' + (err.message || 'Please try again.'));
+        return;
+      }
+    }
+    return;
+  }
+
+  // Fallback for local prototype records
   const donations = getDonations();
-  const item = donations.find(d => d.id === id);
+  const item = donations.find(d => String(d.id) === String(id));
   if (!item) return;
 
   if (item.status === 'Claimed') {
@@ -266,28 +314,52 @@ function initDonorDashboard() {
 
   if (!form && !historyTable) return;
 
-  function renderHistory() {
-    const donations = getDonations();
+  async function renderHistory() {
+    let donationsList = [];
+
+    // Attempt to read from backend
+    if (window.FoodTrustAPI && window.FoodTrustAPI.donations) {
+      try {
+        const apiDonations = await window.FoodTrustAPI.donations.list({ limit: 50 });
+        if (Array.isArray(apiDonations) && apiDonations.length > 0) {
+          donationsList = apiDonations.map(d => ({
+            id: d.id,
+            foodType: d.title || d.food_category,
+            quantity: d.quantity_kg,
+            expiry: d.preparation_timestamp,
+            status: d.status
+          }));
+        }
+      } catch (err) {
+        console.warn('Backend list failed, using local storage:', err);
+      }
+    }
+
+    if (donationsList.length === 0) {
+      donationsList = getDonations();
+    }
+
     if (donationCount) {
-      donationCount.textContent = donations.length;
+      donationCount.textContent = donationsList.length;
     }
 
     if (historyTable) {
       historyTable.innerHTML = '';
-      if (donations.length === 0) {
+      if (donationsList.length === 0) {
         historyTable.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:15px; color:#888;">No donations recorded yet.</td></tr>`;
         return;
       }
 
-      donations.forEach(item => {
+      donationsList.forEach(item => {
         const row = document.createElement('tr');
         const expiryFormatted = item.expiry ? new Date(item.expiry).toLocaleString() : 'N/A';
-        const statusClass = item.status === 'Claimed' ? 'picked' : 'approved';
+        const isClaimed = item.status === 'Claimed' || item.status === 'CLAIMED' || item.status === 'PICKUP_IN_PROGRESS';
+        const statusClass = isClaimed ? 'picked' : 'approved';
         row.innerHTML = `
           <td><strong>${item.foodType}</strong></td>
           <td>${item.quantity} kg</td>
           <td>${expiryFormatted}</td>
-          <td><span class="status ${statusClass}">${item.status || 'Approved'}</span></td>
+          <td><span class="status ${statusClass}">${item.status || 'Available'}</span></td>
         `;
         historyTable.appendChild(row);
       });
@@ -295,7 +367,7 @@ function initDonorDashboard() {
   }
 
   if (form) {
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', async function(e) {
       e.preventDefault();
       const foodType = document.getElementById('foodType').value.trim();
       const quantity = parseFloat(document.getElementById('quantity').value);
@@ -306,42 +378,88 @@ function initDonorDashboard() {
         return;
       }
 
-      const aiAnalysis = calculateAIScore(expiry);
-
-      // Random small offset around Delhi for demo geocoding
-      const latOffset = (Math.random() - 0.5) * 0.08;
-      const lngOffset = (Math.random() - 0.5) * 0.08;
-
-      const newDonation = {
-        id: Date.now(),
-        foodType: foodType,
-        quantity: quantity,
-        freshness: aiAnalysis.label,
-        freshnessScore: aiAnalysis.score,
-        shelfLife: aiAnalysis.shelfLife,
-        status: 'Available',
-        coords: [28.6139 + latOffset, 77.2090 + lngOffset],
-        locationName: 'Delhi NCR (Donor Pickup Point)',
-        expiry: expiry,
-        donorName: 'Anonymous Donor'
-      };
-
-      const donations = getDonations();
-      donations.unshift(newDonation);
-      saveDonations(donations);
-
-      renderHistory();
-
-      if (successMessage) {
-        successMessage.classList.remove('hidden');
-        successMessage.style.display = 'block';
-        setTimeout(() => {
-          successMessage.classList.add('hidden');
-          successMessage.style.display = 'none';
-        }, 3500);
+      const submitBtn = form.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
       }
 
-      form.reset();
+      try {
+        // Attempt backend creation
+        if (window.FoodTrustAPI && window.FoodTrustAPI.donations) {
+          try {
+            await window.FoodTrustAPI.donations.create({
+              title: foodType,
+              description: `Surplus donation: ${quantity}kg ${foodType}`,
+              foodCategory: 'COOKED_MEALS',
+              quantityKg: quantity,
+              preparationTimestamp: new Date(expiry).toISOString(),
+              pickupAddress: 'Connaught Place, New Delhi',
+              latitude: 28.6315,
+              longitude: 77.2167,
+            });
+
+            form.reset();
+            if (successMessage) {
+              successMessage.classList.remove('hidden');
+              successMessage.style.display = 'block';
+              setTimeout(() => {
+                successMessage.classList.add('hidden');
+                successMessage.style.display = 'none';
+              }, 3500);
+            }
+            await renderHistory();
+            return;
+          } catch (err) {
+            if (err.status === 401 || err.status === 403) {
+              alert('Authentication Required: Please login as a registered Donor to create real donations.');
+              window.location.href = 'login.html';
+              return;
+            }
+            console.warn('Backend donation creation failed, saving locally:', err);
+          }
+        }
+
+        // Local storage demo fallback
+        const aiAnalysis = calculateAIScore(expiry);
+        const latOffset = (Math.random() - 0.5) * 0.08;
+        const lngOffset = (Math.random() - 0.5) * 0.08;
+
+        const newDonation = {
+          id: Date.now(),
+          foodType: foodType,
+          quantity: quantity,
+          freshness: aiAnalysis.label,
+          freshnessScore: aiAnalysis.score,
+          shelfLife: aiAnalysis.shelfLife,
+          status: 'Available',
+          coords: [28.6139 + latOffset, 77.2090 + lngOffset],
+          locationName: 'Delhi NCR (Donor Pickup Point)',
+          expiry: expiry,
+          donorName: 'Anonymous Donor'
+        };
+
+        const donations = getDonations();
+        donations.unshift(newDonation);
+        saveDonations(donations);
+
+        if (successMessage) {
+          successMessage.classList.remove('hidden');
+          successMessage.style.display = 'block';
+          setTimeout(() => {
+            successMessage.classList.add('hidden');
+            successMessage.style.display = 'none';
+          }, 3500);
+        }
+
+        form.reset();
+        await renderHistory();
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit Donation';
+        }
+      }
     });
   }
 
@@ -391,17 +509,56 @@ function initDonorDashboard() {
 }
 
 // --- Admin Dashboard Module ---
-function initAdminDashboard() {
+async function initAdminDashboard() {
   const trendCanvas = document.getElementById('donationTrendChart');
   const wasteCanvas = document.getElementById('wasteReductionChart');
-  if (!trendCanvas && !wasteCanvas) return;
+  if (!trendCanvas && !wasteCanvas && !document.querySelector('.admin-dashboard')) return;
 
-  // Update dynamic KPI card if present
-  const donations = getDonations();
-  const totalDonationsCard = document.querySelector('.metrics .card:first-child p');
-  if (totalDonationsCard) {
-    const total = 560 + donations.length;
-    totalDonationsCard.textContent = total;
+  // Attempt to load real overview analytics
+  if (window.FoodTrustAPI && window.FoodTrustAPI.analytics) {
+    try {
+      const overview = await window.FoodTrustAPI.analytics.overview();
+      if (overview) {
+        const cards = document.querySelectorAll('.metrics .card p');
+        if (cards.length >= 4) {
+          cards[0].textContent = overview.donations?.total ?? 0;
+          cards[1].textContent = overview.donations?.delivered ?? 0;
+          cards[2].textContent = overview.users?.ngos ?? 0;
+          cards[3].textContent = overview.users?.donors ?? 0;
+        }
+      }
+    } catch (err) {
+      console.warn('Admin analytics API fallback to demo KPIs:', err);
+    }
+  }
+
+  // Attempt to load real users table
+  const userTableBody = document.querySelector('.user-management table tbody');
+  if (userTableBody && window.FoodTrustAPI && window.FoodTrustAPI.admin) {
+    try {
+      const userRes = await window.FoodTrustAPI.admin.listUsers({ limit: 10 });
+      if (userRes && Array.isArray(userRes.users) && userRes.users.length > 0) {
+        userTableBody.innerHTML = '';
+        userRes.users.forEach(u => {
+          const row = document.createElement('tr');
+          const isSuspended = u.status === 'SUSPENDED';
+          row.innerHTML = `
+            <td><strong>${u.full_name || 'User'}</strong></td>
+            <td>${u.role}</td>
+            <td>${u.email}</td>
+            <td style="color:${isSuspended ? 'red' : 'green'}; font-weight:600;">${u.status}</td>
+            <td>
+              <button data-id="${u.id}" data-status="${u.status}" style="background:${isSuspended ? '#22c55e' : '#dc2626'}; color:white; border:none; padding:4px 10px; border-radius:4px; cursor:pointer;">
+                ${isSuspended ? 'Unblock' : 'Block'}
+              </button>
+            </td>
+          `;
+          userTableBody.appendChild(row);
+        });
+      }
+    } catch (err) {
+      console.warn('Admin users API fallback to demo table:', err);
+    }
   }
 
   if (typeof Chart !== 'undefined') {
@@ -450,9 +607,29 @@ function initAdminDashboard() {
   // Interactive user management buttons
   const userTable = document.querySelector('.user-management table');
   if (userTable) {
-    userTable.addEventListener('click', function(e) {
+    userTable.addEventListener('click', async function(e) {
       if (e.target.tagName === 'BUTTON') {
         const btn = e.target;
+        const userId = btn.getAttribute('data-id');
+        const currentStatus = btn.getAttribute('data-status');
+
+        if (userId && window.FoodTrustAPI && window.FoodTrustAPI.admin) {
+          const newStatus = currentStatus === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED';
+          try {
+            btn.disabled = true;
+            await window.FoodTrustAPI.admin.updateUser(userId, { status: newStatus });
+            alert(`User status updated to ${newStatus}`);
+            await initAdminDashboard();
+            return;
+          } catch (err) {
+            alert('Admin action failed: ' + (err.message || 'Permission denied.'));
+            return;
+          } finally {
+            btn.disabled = false;
+          }
+        }
+
+        // Prototype fallback
         const row = btn.closest('tr');
         const name = row.children[0].innerText;
         const statusCell = row.children[3];
@@ -511,9 +688,33 @@ function initImpactCounters() {
   animateCounter(ngosEl, 48);
 }
 
+// --- Dynamic Session Navigation Helper ---
+async function updateAuthNavState() {
+  if (!window.FoodTrustAPI || !window.FoodTrustAPI.auth) return;
+  try {
+    const user = await window.FoodTrustAPI.auth.me();
+    if (user) {
+      const loginLinks = document.querySelectorAll('a[href="login.html"]');
+      loginLinks.forEach(link => {
+        link.textContent = `Logout (${user.role})`;
+        link.onclick = async (e) => {
+          e.preventDefault();
+          if (confirm('Are you sure you want to log out?')) {
+            await window.FoodTrustAPI.auth.logout();
+            window.location.href = 'index.html';
+          }
+        };
+      });
+    }
+  } catch (err) {
+    // Session check non-blocking
+  }
+}
+
 // --- Initialize Page Logic on DOMContentLoaded ---
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
   highlightActiveNav();
+  await updateAuthNavState();
   initNearbyDonationsMap();
   initDonorDashboard();
   initAdminDashboard();
