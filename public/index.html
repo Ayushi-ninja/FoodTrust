@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KindBite - Donate Surplus Food</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="CSS/style.css">
+  <script src="js/script.js" defer></script>
+
+  <script>
+    window.addEventListener('load', function() {
+      document.getElementById('loading-spinner').style.display = 'none';
+    });
+    </script>
+    
+
+  <style>
+    .spinner {
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #e63946; /* Red color */
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
+    </style>
+</head>
+
+<body>
+
+  <div id="loading-spinner" style="position:fixed;top:0;left:0;width:100%;height:100%;background:white;display:flex;justify-content:center;align-items:center;z-index:9999;">
+        <div class="spinner"></div>
+      </div>
+  <header class="navbar">
+    <div class="navbar-container">
+      <a href="index.html"><img src="assets/logo2.png" alt="KindBite FoodTrust" class="logo" /></a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="donor-dashboard.html">Donor Dashboard</a>
+        <a href="nearby-donations.html">Nearby Donations</a>
+        <a href="ai-insights.html">AI Insights</a>
+        <a href="impact-testimonials.html">Impact</a>
+        <a href="our-mission.html">Mission</a>
+        <a href="about-us.html">About</a>
+        <a href="contact-us.html">Contact</a>
+        <a href="admin-dashboard.html">Admin</a>
+        <a href="login.html" class="nav-highlight">Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-overlay">
+      <div class="hero-content">
+        <h1>Turn Food Waste into Hope</h1>
+        <p>Connect with local NGOs and give surplus food a second chance.</p>
+        <a href="donor-dashboard.html" class="cta-btn">Donate Surplus Food</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2: Features -->
+  <section class="features">
+    <div class="features-container">
+      <h2>How KindBite Works</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <i class="fas fa-brain fa-3x feature-icon"></i>
+          <h3>AI Monitoring</h3>
+          <p>Our system uses AI to detect and analyze surplus food in real time, ensuring nothing goes to waste.</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-microchip fa-3x feature-icon"></i>
+          <h3>IoT Integration</h3>
+          <p>Smart sensors track food quantity and freshness, enabling timely pickups by nearby NGOs.</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-hand-holding-heart fa-3x feature-icon"></i>
+          <h3>NGO Matching</h3>
+          <p>We instantly match food donors with NGOs based on proximity and need, ensuring fast delivery.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 3: How It Works -->
+  <section class="how-it-works">
+    <div class="how-it-works-container">
+      <h2>How It Works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-icon"><i class="fas fa-utensils fa-2x"></i></div>
+          <h3>1. Donors Submit</h3>
+          <p>Restaurants or individuals use the platform to register surplus food.</p>
+        </div>
+        <div class="step">
+          <div class="step-icon"><i class="fas fa-network-wired fa-2x"></i></div>
+          <h3>2. AI + IoT Analyze</h3>
+          <p>Our system detects freshness, quantity, and recommends best matches instantly.</p>
+        </div>
+        <div class="step">
+          <div class="step-icon"><i class="fas fa-truck fa-2x"></i></div>
+          <h3>3. NGOs Receive & Deliver</h3>
+          <p>Nearby NGOs are alerted to collect and redistribute food in real-time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 4: Impact Stats & Testimonials -->
+  <section class="impact-section">
+    <div class="impact-container">
+      <h2>Our Impact</h2>
+      <div class="impact-stats">
+        <div class="stat-box">
+          <h3>250K+</h3>
+          <p>Meals Saved</p>
+        </div>
+        <div class="stat-box">
+          <h3>300+</h3>
+          <p>NGOs Served</p>
+        </div>
+        <div class="stat-box">
+          <h3>1.2K+</h3>
+          <p>Donors Onboarded</p>
+        </div>
+      </div>
+
+      <div class="testimonials">
+        <div class="testimonial">
+          <i class="fas fa-quote-left quote-icon"></i>
+          <p>"KindBite helps us redirect food that would've gone to waste—seamlessly and impactfully!"</p>
+          <h4>— XXXXX, Restaurant Owner</h4>
+        </div>
+        <div class="testimonial">
+          <i class="fas fa-quote-left quote-icon"></i>
+          <p>"With KindBite's real-time dashboard and alerts, we’ve been able to feed more people than ever."</p>
+          <h4>— XXXXX, NGO Volunteer</h4>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 5: About KindBite -->
+  <section class="about-section">
+    <div class="about-container">
+      <h2>About KindBite</h2>
+
+      <div class="about-block">
+        <h3>Our Mission</h3>
+        <p>
+          At KindBite, we aim to eliminate food waste and hunger by connecting food donors with local NGOs.
+          Powered by AI and IoT, we make food redistribution smarter, faster, and more impactful.
+        </p>
+      </div>
+
+      <div class="about-block">
+        <h3>Our Vision</h3>
+        <p>
+          A future where no food goes to waste and every meal finds a home. We envision a connected community
+          where technology bridges the gap between abundance and need.
+        </p>
+      </div>
+
+      <div class="about-block">
+        <h3>Our Team</h3>
+        <div class="team-grid">
+          <div class="team-member">
+            <img src="https://via.placeholder.com/150" alt="Team Member 1">
+            <h4>Aryan Singh</h4>
+            <p>Backend Developer & Hardware</p>
+          </div>
+          <div class="team-member">
+            <img src="https://via.placeholder.com/150" alt="Team Member 2">
+            <h4>Ayushi Rajput</h4>
+            <p>Frontend Developer</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 6: Contact Us -->
+  <section class="contact-section" id="contact">
+    <div class="contact-container">
+      <h2>Contact Us</h2>
+      <p>We'd love to hear from you. Whether you're a donor, NGO, or a curious soul—reach out!</p>
+
+      <div class="contact-flex">
+        <!-- Contact Form -->
+        <form class="contact-form" name="contact" action="https://submit-form.com/xNbt7Czxr" netlify class="contact-form" method="POST">
+            <input type="text" name="name" placeholder="Your Name" required />
+            <input type="email" name="email" placeholder="Your Email" required />
+            <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
+            <button type="submit">Send Message</button>
+          </form>
+          
+
+        <!-- Embedded Map -->
+        <div class="contact-map">
+          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.0199704075675!2d144.96328!3d-37.814217!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad65d43ef5e2ab7%3A0x5045675218ce6e0!2sYour%20HQ!5e0!3m2!1sen!2sin!4v1641322342341" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy">
+          </iframe>
+        </div>
+      </div>
+
+      <!-- Social Icons -->
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+      </div>
+    </div>
+  </section>
+
+  
+  <!-- Section 7: Login/Register -->
+<section class="auth-section" id="login">
+  <div class="auth-container">
+    <h2>Login / Register</h2>
+    <div class="auth-tabs">
+      <button class="tab-btn active" onclick="showForm('donor')">Donor</button>
+      <button class="tab-btn" onclick="showForm('ngo')">NGO</button>
+      <button class="tab-btn" onclick="showForm('admin')">Admin</button>
+    </div>
+
+    <!-- Donor Form -->
+    <div class="auth-form show" id="form-donor">
+      <form name="donor-registration" netlify class="donor-form" action="https://submit-form.com/A0kqkRl93"method="POST">
+        <input type="email" placeholder="Donor Email" required>
+        <input type="password" placeholder="Password" required>
+        <input type="password" placeholder="Confirm Password" required>
+        <button type="submit">Register as Donor</button>
+      </form>
+    </div>
+
+    <!-- NGO Form -->
+    <div class="auth-form" id="form-ngo">
+      <form name="ngo-registration" netlify class="ngo-form" action="https://submit-form.com/8jSiBqQLh"method="POST">
+        <input type="email" placeholder="NGO Email" required>
+        <input type="password" placeholder="Password" required>
+        <input type="password" placeholder="Confirm Password" required>
+        <button type="submit">Register as NGO</button>
+      </form>
+    </div>
+
+    <!-- Admin Form -->
+    <div class="auth-form" id="form-admin">
+      <form name="admin-login" netlify class="admin-form" action="https://submit-form.com/HWrKMKqUW"method="POST">
+        <input type="email" placeholder="Admin Email" required>
+        <input type="password" placeholder="Password" required>
+        <button type="submit">Login as Admin</button>
+      </form>
+    </div>
+  </div>
+</section>  
+
+
+  <!-- Section 8: Footer -->
+<footer class="site-footer">
+  <div class="footer-container">
+    <div class="footer-col logo-col">
+      <img src="assets/logo2.png"alt="KindBite Logo" class="footer-logo">
+      <p>Smart food rescue powered by AI & IoT</p>
+    </div>
+
+    <div class="footer-col nav-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="#index.html">Home</a></li>
+        <li><a href="about-us.html">About Us</a></li>
+        <li><a href="donor-dashboard.html">Donor</a></li>
+        <li><a href="#nearby-donations.html">NGO</a></li>
+        <li><a href="#contact-us.html">Contact</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col social-col">
+      <h4>Follow Us</h4>
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-linkedin"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-github"></i></a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 KindBite. All rights reserved.</p>
+  </div>
+</footer>
+
+  <script>
+  function showForm(role) {
+    const forms = document.querySelectorAll('.auth-form');
+    const tabs = document.querySelectorAll('.tab-btn');
+    forms.forEach(f => f.classList.remove('show'));
+    tabs.forEach(t => t.classList.remove('active'));
+    document.getElementById('form-' + role).classList.add('show');
+    event.target.classList.add('active');
+  }
+</script>
+
+  </body>
+
+</html> 

@@ -4,34 +4,31 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>KindBite Admin Dashboard</title>
-  <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <link rel="stylesheet" href="css/style.css">
-<script src="js/script.js" defer></script>
-
+  <link rel="stylesheet" href="CSS/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/script.js" defer></script>
 </head>
 <body>
 
-     
-        </ul>
-      </nav>
   <div class="admin-dashboard">
     <!-- Sidebar -->
     <aside class="sidebar">
-      <h2 class="logo">KindBite</h2>
-      <nav>
-        <a href="index.html" style="color: white; margin-right: 15px;">Home</a>
-    <a href="donor-dashboard.html" style="color: white; margin-right: 15px;">Donor Dashboard</a>
-    <a href="admin-dashboard.html" style="color: white; margin-right: 15px;">Admin Dashboard</a>
-    <a href="nearby-donations.html" style="color: white; margin-right: 15px;">Nearby Donations</a>
-    <a href="login.html" style="color: white; margin-right: 15px;">Login</a>
-    <a href="ai-insights.html" style="color: white; margin-right: 15px;">AI Insights</a>
-    <a href="impact-testimonials.html" style="color: white; margin-right: 15px;">Impact</a>
-    <a href="our-mission.html" style="color: white; margin-right: 15px;">Mission</a>
-    <a href="about-us.html" style="color: white; margin-right: 15px;">About</a>
-    <a href="contact-us.html" style="color: white;">Contact</a>
-
-         
+      <div style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px;">
+        <img src="assets/logo2.png" alt="KindBite FoodTrust" style="max-height: 40px; background: white; padding: 4px 8px; border-radius: 6px;">
+      </div>
+      <ul>
+        <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+        <li class="active"><a href="admin-dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+        <li><a href="donor-dashboard.html"><i class="fas fa-hand-holding-heart"></i> Donor Portal</a></li>
+        <li><a href="nearby-donations.html"><i class="fas fa-map-marked-alt"></i> Food Map</a></li>
+        <li><a href="ai-insights.html"><i class="fas fa-brain"></i> AI Insights</a></li>
+        <li><a href="impact-testimonials.html"><i class="fas fa-star"></i> Impact</a></li>
+        <li><a href="our-mission.html"><i class="fas fa-bullseye"></i> Mission</a></li>
+        <li><a href="about-us.html"><i class="fas fa-info-circle"></i> About</a></li>
+        <li><a href="contact-us.html"><i class="fas fa-envelope"></i> Contact</a></li>
+        <li><a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+      </ul>
     </aside>
 
     <!-- Main Content -->

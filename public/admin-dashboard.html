@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KindBite Admin Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link rel="stylesheet" href="CSS/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/api-client.js" defer></script>
+  <script src="js/script.js" defer></script>
+</head>
+<body>
+
+  <div class="admin-dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px;">
+        <img src="assets/logo2.png" alt="KindBite FoodTrust" style="max-height: 40px; background: white; padding: 4px 8px; border-radius: 6px;">
+      </div>
+      <ul>
+        <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+        <li class="active"><a href="admin-dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+        <li><a href="donor-dashboard.html"><i class="fas fa-hand-holding-heart"></i> Donor Portal</a></li>
+        <li><a href="nearby-donations.html"><i class="fas fa-map-marked-alt"></i> Food Map</a></li>
+        <li><a href="ai-insights.html"><i class="fas fa-brain"></i> AI Insights</a></li>
+        <li><a href="impact-testimonials.html"><i class="fas fa-star"></i> Impact</a></li>
+        <li><a href="our-mission.html"><i class="fas fa-bullseye"></i> Mission</a></li>
+        <li><a href="about-us.html"><i class="fas fa-info-circle"></i> About</a></li>
+        <li><a href="contact-us.html"><i class="fas fa-envelope"></i> Contact</a></li>
+        <li><a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header -->
+      <header>
+        <h1>Admin Dashboard</h1>
+      </header>
+
+      <!-- Metrics -->
+      <section class="metrics">
+        <div class="card"><h3>Total Donations</h3><p>568</p></div>
+        <div class="card"><h3>Claimed Donations</h3><p>432</p></div>
+        <div class="card"><h3>NGOs</h3><p>27</p></div>
+        <div class="card"><h3>Donors</h3><p>93</p></div>
+      </section>
+
+      <!-- Charts -->
+      <section class="charts">
+        <canvas id="donationTrendChart"></canvas>
+        <canvas id="wasteReductionChart"></canvas>
+      </section>
+
+      <!-- User Management -->
+      <section class="user-management">
+        <h2>User Management</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Green NGO</td>
+              <td>NGO</td>
+              <td>green@ngo.org</td>
+              <td>Active</td>
+              <td><button>Delete</button></td>
+            </tr>
+            <tr>
+              <td>Urban Diner</td>
+              <td>Donor</td>
+              <td>urban@diner.com</td>
+              <td>Active</td>
+              <td><button>Delete</button></td>
+            </tr>
+            <tr>
+              <td>Hope Foundation</td>
+              <td>NGO</td>
+              <td>hope@ngo.org</td>
+              <td>Blocked</td>
+              <td><button>Unblock</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

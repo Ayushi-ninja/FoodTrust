@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login & Register - KindBite FoodTrust</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="CSS/style.css">
+  <script src="js/script.js" defer></script>
+  <style>
+    .auth-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+    .auth-tab-btn {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid #d10000;
+      background: white;
+      color: #d10000;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+    }
+    .auth-tab-btn.active,
+    .auth-tab-btn:hover {
+      background: #d10000;
+      color: white;
+    }
+    .auth-panel {
+      display: none;
+    }
+    .auth-panel.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="navbar-container">
+      <a href="index.html"><img src="assets/logo2.png" alt="KindBite FoodTrust" class="logo" /></a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="donor-dashboard.html">Donor Dashboard</a>
+        <a href="nearby-donations.html">Nearby Donations</a>
+        <a href="ai-insights.html">AI Insights</a>
+        <a href="impact-testimonials.html">Impact</a>
+        <a href="our-mission.html">Mission</a>
+        <a href="about-us.html">About</a>
+        <a href="contact-us.html">Contact</a>
+        <a href="admin-dashboard.html">Admin</a>
+        <a href="login.html" class="nav-highlight">Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="auth-section">
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab-btn active" onclick="switchTab('donor')"><i class="fas fa-hand-holding-heart"></i> Donor</button>
+      <button type="button" class="auth-tab-btn" onclick="switchTab('ngo')"><i class="fas fa-users"></i> NGO</button>
+      <button type="button" class="auth-tab-btn" onclick="switchTab('admin')"><i class="fas fa-user-shield"></i> Admin</button>
+    </div>
+
+    <!-- Donor Login/Register -->
+    <div id="donorPanel" class="auth-panel active">
+      <h2>Donor Portal</h2>
+      <form class="auth-form" onsubmit="event.preventDefault(); window.location.href='donor-dashboard.html';">
+        <input type="text" placeholder="Full Name or Restaurant Name" required />
+        <input type="email" placeholder="Email Address" required />
+        <input type="password" placeholder="Password" required />
+        <button type="submit">Sign In / Register as Donor</button>
+        <p class="toggle-link" style="margin-top: 12px; font-size: 0.9rem; color:#666;">
+          Redirects to the Donor Dashboard
+        </p>
+      </form>
+    </div>
+
+    <!-- NGO Login/Register -->
+    <div id="ngoPanel" class="auth-panel">
+      <h2>NGO Portal</h2>
+      <form class="auth-form" onsubmit="event.preventDefault(); window.location.href='nearby-donations.html';">
+        <input type="text" placeholder="Organization / NGO Name" required />
+        <input type="email" placeholder="Email Address" required />
+        <input type="password" placeholder="Password" required />
+        <button type="submit">Sign In / Register as NGO</button>
+        <p class="toggle-link" style="margin-top: 12px; font-size: 0.9rem; color:#666;">
+          Redirects to Nearby Food Map
+        </p>
+      </form>
+    </div>
+
+    <!-- Admin Login -->
+    <div id="adminPanel" class="auth-panel">
+      <h2>Admin Panel</h2>
+      <form class="auth-form" onsubmit="event.preventDefault(); window.location.href='admin-dashboard.html';">
+        <input type="email" placeholder="Admin Email" value="admin@foodtrust.org" required />
+        <input type="password" placeholder="Admin Password" value="••••••••" required />
+        <button type="submit">Login to Admin Console</button>
+        <p class="toggle-link" style="margin-top: 12px; font-size: 0.9rem; color:#666;">
+          Full platform analytics & user management
+        </p>
+      </form>
+    </div>
+  </section>
+
+  <script src="js/api-client.js"></script>
+  <script>
+    function switchTab(role) {
+      document.querySelectorAll('.auth-tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.auth-panel').forEach(panel => panel.classList.remove('active'));
+
+      if (role === 'donor') {
+        event.currentTarget.classList.add('active');
+        document.getElementById('donorPanel').classList.add('active');
+      } else if (role === 'ngo') {
+        event.currentTarget.classList.add('active');
+        document.getElementById('ngoPanel').classList.add('active');
+      } else if (role === 'admin') {
+        event.currentTarget.classList.add('active');
+        document.getElementById('adminPanel').classList.add('active');
+      }
+    }
+
+    async function handleAuth(event, role, redirectUrl) {
+      event.preventDefault();
+      const form = event.target;
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+
+      const emailInput = form.querySelector('input[type="email"]');
+      const passwordInput = form.querySelector('input[type="password"]');
+      const nameInput = form.querySelector('input[type="text"]');
+
+      const email = emailInput ? emailInput.value.trim() : '';
+      const password = passwordInput ? passwordInput.value : '';
+      const fullName = nameInput ? nameInput.value.trim() : '';
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Authenticating...';
+
+      try {
+        // Attempt login first
+        try {
+          const res = await window.FoodTrustAPI.auth.login(email, password);
+          window.location.href = redirectUrl;
+          return;
+        } catch (loginErr) {
+          // If 401 and registration fields provided (donor/ngo), attempt registration
+          if (loginErr.status === 401 && role !== 'ADMIN' && fullName) {
+            submitBtn.textContent = 'Registering new account...';
+            await window.FoodTrustAPI.auth.register(email, password, fullName, role);
+            // Log in with newly registered account
+            await window.FoodTrustAPI.auth.login(email, password);
+            window.location.href = redirectUrl;
+            return;
+          }
+          throw loginErr;
+        }
+      } catch (err) {
+        alert('Authentication failed: ' + (err.message || 'Please check your credentials.'));
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    }
+
+    // Attach form listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      const donorForm = document.querySelector('#donorPanel form');
+      if (donorForm) {
+        donorForm.onsubmit = (e) => handleAuth(e, 'DONOR', 'donor-dashboard.html');
+      }
+
+      const ngoForm = document.querySelector('#ngoPanel form');
+      if (ngoForm) {
+        ngoForm.onsubmit = (e) => handleAuth(e, 'NGO', 'nearby-donations.html');
+      }
+
+      const adminForm = document.querySelector('#adminPanel form');
+      if (adminForm) {
+        adminForm.onsubmit = (e) => handleAuth(e, 'ADMIN', 'admin-dashboard.html');
+      }
+    });
+  </script>
+</body>
+</html>

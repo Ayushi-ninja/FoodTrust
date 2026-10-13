@@ -1,0 +1,85 @@
+/**
+ * config.h.example - FoodTrust ESP32 Hardware Configuration Template
+ * 
+ * INSTRUCTIONS:
+ * 1. Copy this file to "config.h" in the same directory:
+ *    cp include/config.h.example include/config.h
+ * 2. Populate your local Wi-Fi credentials and provisioned bin secrets.
+ * 3. Never commit "config.h" to version control (it is ignored by .gitignore).
+ */
+
+#ifndef CONFIG_H
+#define CONFIG_H
+
+// ==============================================================================
+// 1. Wi-Fi Station Configuration
+// ==============================================================================
+#define WIFI_SSID           "YOUR_WIFI_SSID"
+#define WIFI_PASSWORD       "YOUR_WIFI_PASSWORD"
+#define WIFI_CONNECT_TIMEOUT_MS 20000
+
+// ==============================================================================
+// 2. FoodTrust Backend API Endpoint Configuration
+// ==============================================================================
+// For production deployments, use HTTPS domain: "https://api.foodtrust.org"
+// For local prototyping / bench testing, use your host machine LAN IP: "http://192.168.1.100:3000"
+#define FOODTRUST_API_BASE_URL  "http://192.168.1.100:3000"
+
+// Path endpoints conforming to Phase 3/12 API Contract
+#define ENDPOINT_TELEMETRY      "/api/iot/telemetry"
+#define ENDPOINT_HEARTBEAT      "/api/iot/heartbeat"
+
+// ==============================================================================
+// 3. Hardware Identity & Pre-Shared Secret Authentication
+// ==============================================================================
+// Physical bin identifier mapped in public.smart_bins.bin_code
+#define SMART_BIN_CODE          "BIN-DELHI-001"
+
+// Provisioned secret raw token for this device (NEVER committed to git)
+// The backend verifies: SHA256(x-device-token + IOT_DEVICE_SHARED_SALT) == smart_bins.api_key_hash
+#define SMART_BIN_DEVICE_TOKEN  "dt_sec_9f8e7d6c5b4a3120"
+
+// Firmware version string transmitted in telemetry and heartbeat
+#define FIRMWARE_VERSION        "1.0.4"
+
+// ==============================================================================
+// 4. Transmission Schedules & Intervals (milliseconds)
+// ==============================================================================
+#define TELEMETRY_INTERVAL_MS   30000   // 30 seconds (Max 60 req/min per rate limiter)
+#define HEARTBEAT_INTERVAL_MS   60000   // 60 seconds ping
+#define HTTP_REQUEST_TIMEOUT_MS 8000    // 8 seconds request timeout
+
+// ==============================================================================
+// 5. Hardware Pin Definitions (ESP32-WROOM-32 Pinout)
+// ==============================================================================
+// Chamber Ambient Sensors (Food Handling Unit)
+#define PIN_DHT22_DATA          4       // GPIO 4: DHT22 One-Wire Data
+#define PIN_MQ135_ANALOG        34      // GPIO 34 (ADC1_CH6): Analog VOC output
+#define PIN_LID_REED_SWITCH     21      // GPIO 21: Magnetic reed switch (Active LOW with pullup)
+
+// Tray 1 Load Cell Interface (HX711 24-bit ADC)
+#define PIN_HX711_TRAY1_DOUT    16      // GPIO 16: HX711 Serial Data
+#define PIN_HX711_TRAY1_SCK     17      // GPIO 17: HX711 Serial Clock
+#define HX711_TRAY1_CAL_FACTOR  -2280.0f // Calibration factor (counts per kg)
+
+// Tray 2 Load Cell Interface (HX711 24-bit ADC)
+#define PIN_HX711_TRAY2_DOUT    18      // GPIO 18: HX711 Serial Data
+#define PIN_HX711_TRAY2_SCK     19      // GPIO 19: HX711 Serial Clock
+#define HX711_TRAY2_CAL_FACTOR  -2250.0f
+
+// System Status LED
+#define PIN_STATUS_LED          2       // GPIO 2: On-board Blue LED (indicator)
+
+// ==============================================================================
+// 6. Simulation & Security Toggles
+// ==============================================================================
+// If physical sensors are not attached during bench testing, enable synthetic
+// measurement fallback within valid physical bounds:
+#define ENABLE_SENSOR_SIMULATION_FALLBACK  true
+
+// TLS / SSL Security Configuration:
+// Set to true for production HTTPS with Root CA validation
+// Set to false for local development / self-signed certificate HTTP testing
+#define USE_SECURE_TLS          false
+
+#endif // CONFIG_H

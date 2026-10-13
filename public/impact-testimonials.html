@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KindBite | Impact & Testimonials</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="CSS/style.css">
+  <script src="js/script.js" defer></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #fff;
+      color: #333;
+    }
+    .section {
+      padding: 60px 20px;
+      text-align: center;
+    }
+    .impact {
+      background-color: #ffe6e6;
+    }
+    .impact h2, .testimonials h2 {
+      color: #cc0000;
+      margin-bottom: 40px;
+      font-size: 2.5rem;
+    }
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 40px;
+    }
+    .stat {
+      flex: 1 1 200px;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .stat h3 {
+      font-size: 3rem;
+      color: #cc0000;
+      margin-bottom: 10px;
+    }
+    .stat p {
+      font-size: 1.2rem;
+      color: #555;
+    }
+    .testimonials {
+      background: #fff;
+    }
+    .testimonial-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+    }
+    .testimonial {
+      flex: 1 1 300px;
+      background: #ffe6e6;
+      padding: 25px;
+      border-radius: 12px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .testimonial:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+    .testimonial p {
+      font-size: 1rem;
+      color: #444;
+      margin-bottom: 15px;
+    }
+    .testimonial .name {
+      font-weight: bold;
+      color: #cc0000;
+    }
+
+    @media (max-width: 768px) {
+      .stats, .testimonial-container {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="navbar-container">
+      <a href="index.html"><img src="assets/logo2.png" alt="KindBite FoodTrust" class="logo" /></a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="donor-dashboard.html">Donor Dashboard</a>
+        <a href="nearby-donations.html">Nearby Donations</a>
+        <a href="ai-insights.html">AI Insights</a>
+        <a href="impact-testimonials.html">Impact</a>
+        <a href="our-mission.html">Mission</a>
+        <a href="about-us.html">About</a>
+        <a href="contact-us.html">Contact</a>
+        <a href="admin-dashboard.html">Admin</a>
+        <a href="login.html" class="nav-highlight">Login</a>
+      </nav>
+    </div>
+  </header>
+
+<!-- Impact Section -->
+<section class="section impact">
+  <h2>Our Impact So Far</h2>
+  <div class="stats">
+    <div class="stat">
+      <h3 id="meals">0</h3>
+      <p>Meals Distributed</p>
+    </div>
+    <div class="stat">
+      <h3 id="waste">0</h3>
+      <p>Kg Food Waste Saved</p>
+    </div>
+    <div class="stat">
+      <h3 id="ngos">0</h3>
+      <p>NGOs Connected</p>
+    </div>
+    <div class="stat">
+      <h3 id="donors">0</h3>
+      <p>Donors Onboarded</p>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="section testimonials">
+  <h2>Voices of Kindness</h2>
+  <div class="testimonial-container">
+    <div class="testimonial">
+      <p>"KindBite made it so easy for our restaurant to donate food daily. A wonderful initiative!"</p>
+      <div class="name">- XXXXX, Restaurant Owner</div>
+    </div>
+    <div class="testimonial">
+      <p>"Thanks to KindBite, we have access to fresh meals for the children in our NGO."</p>
+      <div class="name">- XXXXXX, NGO Volunteer</div>
+    </div>
+    <div class="testimonial">
+      <p>"Reducing food waste and feeding the needy has never been more efficient. Kudos!"</p>
+      <div class="name">- XXXXX, Hotel Manager</div>
+    </div>
+  </div>
+</section>
+
+<!-- JavaScript for animated counters -->
+<script>
+  function animateCounter(id, target) {
+    let count = 0;
+    const speed = 20; // smaller = faster
+    const increment = target / 100;
+    const obj = document.getElementById(id);
+
+    function updateCounter() {
+      if (count < target) {
+        count += increment;
+        obj.innerText = Math.ceil(count);
+        setTimeout(updateCounter, speed);
+      } else {
+        obj.innerText = target;
+      }
+    }
+
+    updateCounter();
+  }
+
+  // Start animation on load
+  window.onload = () => {
+    animateCounter("meals", 50000);
+    animateCounter("waste", 12000);
+    animateCounter("ngos", 150);
+    animateCounter("donors", 250);
+  }
+</script>
+
+</body>
+</html>

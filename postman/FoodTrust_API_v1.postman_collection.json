@@ -1,0 +1,938 @@
+{
+  "info": {
+    "_postman_id": "foodtrust-api-collection-v1",
+    "name": "FoodTrust API v1",
+    "description": "Complete FoodTrust API collection covering Authentication, Profiles, IoT, Freshness Assessment, Smart NGO Matching, Donations Lifecycle, Claims, Pickups & Fulfillment, Analytics, Notifications, and Admin Oversight.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Health & Authentication",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Service is healthy', function () { const json = pm.response.json(); pm.expect(json.status).to.eql('healthy'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test_donor_{{$randomInt}}@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"fullName\": \"Test User\",\n  \"role\": \"DONOR\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login (Donor)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"donor@foodtrust.dev\",\n  \"password\": \"DonorPass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.user) { pm.environment.set('donorUserId', json.data.user.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (NGO)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ngo@foodtrust.dev\",\n  \"password\": \"NgoPass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.user) { pm.environment.set('ngoUserId', json.data.user.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@foodtrust.dev\",\n  \"password\": \"AdminPass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.user) { pm.environment.set('adminUserId', json.data.user.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Current Session (Me)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Profiles",
+      "item": [
+        {
+          "name": "Get Donor Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/donors/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "donors", "profile"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.id) { pm.environment.set('donorProfileId', json.data.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Donor Profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessName\": \"Spice Route Bistro Delhi\",\n  \"address\": \"Connaught Place, New Delhi\",\n  \"latitude\": 28.6315,\n  \"longitude\": 77.2167\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/donors/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "donors", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Get Donor Profile By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/donors/{{donorProfileId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "donors", "{{donorProfileId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get NGO Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ngos/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ngos", "profile"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.id) { pm.environment.set('ngoProfileId', json.data.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update NGO Profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"organizationName\": \"Asha Food Relief\",\n  \"registrationNumber\": \"REG-DEL-2024-001\",\n  \"operationalRadiusKm\": 20,\n  \"hasColdStorage\": true,\n  \"dailyCapacityKg\": 500,\n  \"latitude\": 28.6280,\n  \"longitude\": 77.2100\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ngos/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ngos", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Get NGO Profile By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ngos/{{ngoProfileId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ngos", "{{ngoProfileId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. IoT & Telemetry",
+      "item": [
+        {
+          "name": "List Smart Bins",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/iot/bins",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "iot", "bins"]
+            }
+          }
+        },
+        {
+          "name": "IoT Heartbeat",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-bin-id", "value": "{{binCode}}" },
+              { "key": "x-device-token", "value": "{{deviceToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"firmwareVersion\": \"1.0.4\",\n  \"batteryPct\": 95\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/iot/heartbeat",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "iot", "heartbeat"]
+            }
+          }
+        },
+        {
+          "name": "Ingest Sensor Telemetry",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-bin-id", "value": "{{binCode}}" },
+              { "key": "x-device-token", "value": "{{deviceToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"binCode\": \"{{binCode}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"ambient\": {\n    \"temperatureC\": 4.2,\n    \"humidityPct\": 65.0,\n    \"vocGasPpm\": 45.0\n  },\n  \"system\": {\n    \"lidOpen\": false,\n    \"batteryPct\": 95,\n    \"firmwareVersion\": \"1.0.4\"\n  },\n  \"trays\": [\n    {\n      \"trayNumber\": 1,\n      \"category\": \"COOKED_MEALS\",\n      \"rawWeightKg\": 12.5,\n      \"tareWeightKg\": 2.5,\n      \"netWeightKg\": 10.0\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/iot/telemetry",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "iot", "telemetry"]
+            }
+          }
+        },
+        {
+          "name": "Tare Tray",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tareWeightKg\": 0.45\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/iot/trays/{{trayId}}/tare",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "iot", "trays", "{{trayId}}", "tare"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Freshness Assessment",
+      "item": [
+        {
+          "name": "Evaluate Freshness",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"foodCategory\": \"COOKED_MEALS\",\n  \"preparationTimestamp\": \"{{$isoTimestamp}}\",\n  \"temperatureC\": 5.0,\n  \"humidityPct\": 60.0,\n  \"gasReadingPpm\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/freshness/evaluate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "freshness", "evaluate"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.test('Has freshness score', function () { pm.expect(json.data.evaluatedScore).to.be.a('number'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Donation Freshness History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/donations/{{donationId}}/freshness",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "donations", "{{donationId}}", "freshness"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. NGO Matching",
+      "item": [
+        {
+          "name": "Match Eligible NGOs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/matching/ngos?donationId={{donationId}}&radiusKm=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "matching", "ngos"],
+              "query": [
+                { "key": "donationId", "value": "{{donationId}}" },
+                { "key": "radiusKm", "value": "20" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.test('Matches array exists', function () { pm.expect(json.data).to.be.an('array'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Donations & Lifecycle",
+      "item": [
+        {
+          "name": "List Donations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/donations?status=AVAILABLE&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "donations"],
+              "query": [
+                { "key": "status", "value": "AVAILABLE" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Donation",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Surplus Vegetable Biryani\",\n  \"description\": \"Freshly prepared 40 meals from banquet\",\n  \"foodCategory\": \"COOKED_MEALS\",\n  \"quantityKg\": 25.0,\n  \"preparationTimestamp\": \"2026-10-12T10:00:00.000Z\",\n  \"pickupAddress\": \"Connaught Place, New Delhi\",\n  \"latitude\": 28.6315,\n  \"longitude\": 77.2167\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/donations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "donations"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.id) { pm.environment.set('donationId', json.data.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Donation Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/donations/{{donationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "donations", "{{donationId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Donation",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Surplus Biryani (Updated Packaging)\",\n  \"quantityKg\": 26.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/donations/{{donationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "donations", "{{donationId}}"]
+            }
+          }
+        },
+        {
+          "name": "Transition Donation Status",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetStatus\": \"RESERVED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/donations/{{donationId}}/transition",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "donations", "{{donationId}}", "transition"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Donation",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Spoilage detected before distribution\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/donations/{{donationId}}/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "donations", "{{donationId}}", "cancel"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Claims",
+      "item": [
+        {
+          "name": "Claim Donation (NGO)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Asha Foundation volunteer team will pick up at 2 PM\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/donations/{{donationId}}/claim",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "donations", "{{donationId}}", "claim"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.id) { pm.environment.set('claimId', json.data.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Claims",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims?limit=20&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "claims"],
+              "query": [
+                { "key": "limit", "value": "20" },
+                { "key": "offset", "value": "0" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Claim Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/claims/{{claimId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "claims", "{{claimId}}"]
+            }
+          }
+        },
+        {
+          "name": "Reject Claim (Donor/Admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"NGO pickup window missed\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/claims/{{claimId}}/reject",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "claims", "{{claimId}}", "reject"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Pickups & OTP Handoff",
+      "item": [
+        {
+          "name": "Schedule Pickup",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"donationId\": \"{{donationId}}\",\n  \"assignedVolunteer\": \"Rahul Sharma\",\n  \"volunteerPhone\": \"+919876543210\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pickups",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pickups"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.id) { pm.environment.set('pickupId', json.data.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Pickups",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pickups?limit=20&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pickups"],
+              "query": [
+                { "key": "limit", "value": "20" },
+                { "key": "offset", "value": "0" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Pickup Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pickups/{{pickupId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pickups", "{{pickupId}}"]
+            }
+          }
+        },
+        {
+          "name": "Generate or Retrieve OTP (Donor)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pickups/{{pickupId}}/generate-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pickups", "{{pickupId}}", "generate-otp"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.otpCode) { pm.environment.set('pickupOtp', json.data.otpCode); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify OTP (NGO Handoff)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"otpCode\": \"{{pickupOtp}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pickups/{{pickupId}}/verify-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pickups", "{{pickupId}}", "verify-otp"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Complete Delivery",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"proofImageUrl\": \"https://example.com/proofs/delivery-1.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pickups/{{pickupId}}/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pickups", "{{pickupId}}", "complete"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "9. Analytics",
+      "item": [
+        {
+          "name": "Overview Analytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/overview",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "overview"]
+            }
+          }
+        },
+        {
+          "name": "Donor Analytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/donor",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "donor"]
+            }
+          }
+        },
+        {
+          "name": "NGO Analytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/ngo",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "ngo"]
+            }
+          }
+        },
+        {
+          "name": "Admin Analytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/admin",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "admin"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Notifications",
+      "item": [
+        {
+          "name": "List Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications?limit=20&unread_only=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications"],
+              "query": [
+                { "key": "limit", "value": "20" },
+                { "key": "unread_only", "value": "false" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.notifications && json.data.notifications.length > 0) {",
+                  "  pm.environment.set('notificationId', json.data.notifications[0].id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mark Notification Read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/{{notificationId}}/read",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "{{notificationId}}", "read"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Admin Oversight",
+      "item": [
+        {
+          "name": "List Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users?limit=50&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users"],
+              "query": [
+                { "key": "limit", "value": "50" },
+                { "key": "offset", "value": "0" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update User Status / Role",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/{{donorUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users", "{{donorUserId}}"]
+            }
+          }
+        },
+        {
+          "name": "List Audit Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/logs?limit=50&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "logs"],
+              "query": [
+                { "key": "limit", "value": "50" },
+                { "key": "offset", "value": "0" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get System Config",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/config",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "config"]
+            }
+          }
+        },
+        {
+          "name": "Update System Config (Super Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"kg_per_meal_factor\",\n  \"value\": \"0.40\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/config",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "config"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

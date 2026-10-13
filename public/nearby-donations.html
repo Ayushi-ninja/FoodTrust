@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nearby Donations - KindBite FoodTrust</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <!-- LeafletJS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="CSS/style.css">
+  <script src="js/api-client.js" defer></script>
+  <script src="js/script.js" defer></script>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="navbar-container">
+      <a href="index.html"><img src="assets/logo2.png" alt="KindBite FoodTrust" class="logo" /></a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="donor-dashboard.html">Donor Dashboard</a>
+        <a href="nearby-donations.html">Nearby Donations</a>
+        <a href="ai-insights.html">AI Insights</a>
+        <a href="impact-testimonials.html">Impact</a>
+        <a href="our-mission.html">Mission</a>
+        <a href="about-us.html">About</a>
+        <a href="contact-us.html">Contact</a>
+        <a href="admin-dashboard.html">Admin</a>
+        <a href="login.html" class="nav-highlight">Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <main class="main-content">
+      <header>
+        <h1>Nearby Food Donations</h1>
+        <p style="color:#666; margin:0 0 10px 0;">Real-time map and directory of surplus food ready for NGO collection in Delhi NCR.</p>
+        <div class="filters">
+          <label>Filter by Type:</label>
+          <select id="typeFilter">
+            <option value="all">All Types</option>
+            <option value="Cooked">Cooked Meals</option>
+            <option value="Vegetables">Vegetables</option>
+            <option value="Fruits">Fruits</option>
+            <option value="Bakery">Bakery & Bread</option>
+          </select>
+          <input type="text" id="searchBar" placeholder="Search by location, item or freshness..." />
+        </div>
+      </header>
+
+      <section id="map"></section>
+      <section id="donationList" class="donation-list"></section>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span id="closeModal">&times;</span>
+      <h3><i class="fas fa-brain" style="color:#b30000;"></i> AI Freshness Score</h3>
+      <p style="margin-top:10px; line-height:1.6; color:#444;">The AI algorithms analyze time-since-preparation, ambient temperature, packaging conditions, and food category decay curves to compute a dynamic freshness index (0–100).</p>
+      <ul style="margin: 15px 0 0 20px; color:#555; line-height:1.6;">
+        <li><strong>90–100 (Fresh):</strong> Recently cooked or freshly harvested.</li>
+        <li><strong>70–89 (Moderate):</strong> Safe for standard consumption within window.</li>
+        <li><strong>Below 70 (Critical):</strong> Nearing shelf-life limit; immediate priority pickup recommended.</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>
